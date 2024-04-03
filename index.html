@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://source.unsplash.com/1600x900/?quiz');
+        background-size: cover;
+        background-position: center;
+        color: #fff;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .container {
+        max-width: 800px;
+        padding: 20px;
+        background-color: rgba(0, 0, 0, 0.8);
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        text-align: center;
+    }
+    h1 {
+        margin-bottom: 20px;
+    }
+    .question {
+        margin-bottom: 20px;
+    }
+    .options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    #timer {
+        margin-bottom: 10px;
+        font-size: 20px;
+        color: #f00;
+    }
+    #score {
+        margin-top: 20px;
+        font-size: 24px;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Quiz</h1>
+    <div id="question" class="question"></div>
+    <div class="options" id="options"></div>
+    <div id="timer">Time remaining: <span id="time">15</span> seconds</div>
+    <div id="score"></div>
+</div>
+<script>
+    const quizData = [
+        {
+            question: "1. What is the capital city of Australia?",
+            options: ["Sydney","Melbourne","Canberra"," Brisbane"],
+            answer: "Canberra"
+        },
+        {
+            question: "2. Which of the following countries does not border the Mediterranean Sea?",
+            options: ["Italy","Greece","Romania","Spain"],
+            answer: "Romania"
+        },
+        {
+            question: "3. Who directed the movie Inception? ",
+            options: ["Christopher Nolan","Steven Spielberg","Quentin Tarantino","Martin Scorsese"],
+            answer: "Christopher Nolan"
+        },
+        {
+            question: "4. Which planet is known as the Red Planet?",
+            options: ["Venus","Mars","Jupiter","Saturn"],
+            answer: "Mars"
+        },
+        {
+            question: "5. Who played the role of Neo in the movie The Matrix?",
+            options: ["Keanu Reeves","Brad Pitt","Leonardo DiCaprio","Tom Cruise"],
+            answer: "Keanu Reeves"
+        },
+        {
+            question: "6. Which famous scientist developed the theory of relativity?",
+            options: ["Isaac Newton","Albert Einstein","Galileo Galilei","Nikola Tesla"],
+            answer: "Albert Einstein"
+        },
+        {
+            question: "7.The Great Barrier Reef is located off the coast of which country?",
+            options: ["Brazil","Australia","Mexico","Indonesia"],
+            answer: "Australia"
+        },
+        {
+            question: "8. What is the largest desert in the world?",
+            options: ["Sahara Desert","Gobi Desert","Antarctic Desert","Arabian Desert"],
+            answer: "Antarctic Desert"
+        },
+        {
+            question: "9.Which movie won the Academy Award for Best Picture in 2020?",
+            options: ["Parasite","1917","Joker","Green Book"],
+            answer: "Parasite"
+        },
+        {
+            question: "10.What is the chemical symbol for gold?",
+            options: ["Ag","Au","Hg","Fe"],
+            answer: "Au"
+        },
+        {
+            question: "11. Which river is the longest in the world?",
+            options: ["Nile","Amazon","Mississippi","Yangtze"],
+            answer: "Nile"
+        },
+        {
+            question: "12.Who played the role of Captain Jack Sparrow in the Pirates of the Caribbean series?",
+            options: ["Johnny Depp","Orlando Bloom","Tom Cruise","Brad Pitt"],
+            answer: "Johnny Depp"
+        },
+        {
+            question: "13. What is the chemical symbol for water?",
+            options: ["O2","H2O","CO2","NaCl"],
+            answer: "H2O"
+        },
+        {
+            question: "14.Which continent is the driest on Earth?",
+            options: ["Asia","Africa","Australia","Antarctica"],
+            answer: "Australia"
+        },
+        {
+            question: "15.Who directed the movie The Shawshank Redemption?",
+            options: ["Frank Darabont","Quentin Tarantino","Martin Scorsese","Steven Spielberg"],
+            answer: "Frank Darabont"
+        },
+        {
+            question: "16.What is the largest organ in the human body?",
+            options: ["Liver","Skin","Brain","Heart"],
+            answer: "Skin"
+        },
+        {
+            question: "17. Which mountain range is located between Europe and Asia?",
+            options: ["Andes","Rocky Mountains","Alps","Ural Mountains"],
+            answer: "Ural Mountains"
+        },
+        {
+            question: "18. Which movie features the character Forrest Gump?",
+            options: ["Saving Private Ryan","Forrest Gump","The Green Mile","Cast Away"],
+            answer: "Forrest Gump"
+        },
+        {
+            question: "19. What is the chemical symbol for iron?",
+            options: ["Fe","Au","Pb","Ag"],
+            answer:  "Fe"
+        },
+        {
+            question:"20.Which is the largest island in the world?",
+            options: ["Madagascar","Greenland","Borneo","Java"],
+            answer:  "Greenland"
+        }
+
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let timer;
+
+    const questionElement = document.getElementById("question");
+    const optionsElement = document.getElementById("options");
+    const scoreElement = document.getElementById("score");
+    const timeElement = document.getElementById("time");
+
+    function showQuestion() {
+        const quizItem = quizData[currentQuestion];
+        questionElement.textContent = quizItem.question;
+        optionsElement.innerHTML = "";
+        quizItem.options.forEach((option) => {
+            const button = document.createElement("button");
+            button.textContent = option;
+            button.addEventListener("click", () => {
+                if (option === quizItem.answer) {
+                    score++;
+                }
+                currentQuestion++;
+                if (currentQuestion < quizData.length) {
+                    showQuestion();
+                } else {
+                    showScore();
+                }
+                clearInterval(timer);
+                timeElement.textContent = "15";
+                startTimer();
+            });
+            optionsElement.appendChild(button);
+        });
+        clearInterval(timer);
+        timeElement.textContent = "15";
+        startTimer();
+    }
+
+    function startTimer() {
+        let timeLeft = 15;
+        timer = setInterval(() => {
+            timeLeft--;
+            timeElement.textContent = timeLeft;
+            if (timeLeft === 0) {
+                clearInterval(timer);
+                currentQuestion++;
+                if (currentQuestion < quizData.length) {
+                    showQuestion();
+                } else {
+                    showScore();
+                }
+            }
+        }, 1000);
+    }
+
+    function showScore() {
+        const percentage = (score / quizData.length) * 100;
+        let result = "Fail";
+        if (percentage >= 65) {
+            result = "Pass";
+        }
+        questionElement.textContent = "";
+        optionsElement.innerHTML = "";
+        scoreElement.textContent = `Your score: ${score} out of ${quizData.length} (${percentage.toFixed(2)}%). Result: ${result}`;
+        nextButton.style.display = "none";
+        clearInterval(timer);
+        timeElement.style.display = "none";
+    }
+
+
+    showQuestion();
+</script>
+</body>
+</html>
